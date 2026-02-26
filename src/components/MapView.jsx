@@ -232,6 +232,7 @@ export default function MapView() {
   const [problemMode, setProblemMode] = useState(false);
   const [severityFilter, setSeverityFilter] = useState(null);
   const mapRef = useRef(null);
+  const [mapReady, setMapReady] = useState(false);
   const markersRef = useRef({});
   const hasCenteredRef = useRef(false);
   const clusterRef = useRef(null);
@@ -318,7 +319,7 @@ export default function MapView() {
   }, []);
 
   useEffect(() => {
-	  if (!mapRef.current) return;
+	  if (!mapReady || !mapRef.current) return;
 	
 	  const map = mapRef.current;
 	
@@ -340,7 +341,7 @@ export default function MapView() {
 	    map.off("zoomend", schedule);
 	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
 	  };
-	}, [loadBuildingsForView]);
+	}, [mapReady, loadBuildingsForView]);
 	
   useEffect(() => {
 	  if (!mapRef.current) return;
@@ -544,7 +545,8 @@ export default function MapView() {
 		  zoom={mapZoom}
 		  style={{ height: "100%", width: "100%" }}
 		  whenCreated={(mapInstance) => {
-			mapRef.current = mapInstance;
+		    mapRef.current = mapInstance;
+		    setMapReady(true);
 		  }}
 		>
 		{selectedBuilding && (
