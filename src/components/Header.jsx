@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function Header() {
   return (
     <div className="app-header">
-      <div className="logo">Правда о районах</div>
+      <div className="logo">Карта обращений-Домовой мониторинг</div>
 
       <div className="nav">
         <NavLink to="/" end>
