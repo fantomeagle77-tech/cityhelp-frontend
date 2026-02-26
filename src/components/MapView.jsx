@@ -296,6 +296,18 @@ export default function MapView() {
   const data = await getBuildings(); // временно без bbox
   setBuildings(data);
 }, [statusFilter, problemMode, severityFilter]);
+
+  useEffect(() => {
+	  (async () => {
+	    try {
+	      const data = await getBuildings();
+	      console.log("[BUILDINGS_FETCHED]", data);
+	      setBuildings(data);
+	    } catch (e) {
+	      console.log("[BUILDINGS_FETCH_ERROR]", e);
+	    }
+	  })();
+	}, []);
 	
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -331,14 +343,14 @@ export default function MapView() {
 	  };
 	
 	  // первая загрузка
-	  schedule();
+	  // schedule();
 	
-	  map.on("moveend", schedule);
-	  map.on("zoomend", schedule);
+	  // map.on("moveend", schedule);
+	  // map.on("zoomend", schedule);
 	
 	  return () => {
-	    map.off("moveend", schedule);
-	    map.off("zoomend", schedule);
+	    // map.off("moveend", schedule);
+	    // map.off("zoomend", schedule);
 	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
 	  };
 	}, [mapReady, loadBuildingsForView]);
