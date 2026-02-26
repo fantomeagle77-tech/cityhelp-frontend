@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -251,6 +251,8 @@ export default function MapView() {
 
   const [mapCenter, setMapCenter] = useState([53.9, 27.5667]);
   const [mapZoom, setMapZoom] = useState(12);
+  const loadTimerRef = useRef(null);
+  const lastBboxKeyRef = useRef("");
 
   async function refreshBuildings() {
     const data = await getBuildings();
@@ -276,12 +278,24 @@ export default function MapView() {
     }
   }
 
-  useEffect(() => {
-    refreshBuildings().catch(() => {
-      // ошибки покажет консоль/overlay; не ломаем UI
-    });
-  }, []);
-  
+ const loadBuildingsForView = useCallback(async () => {
+  if (!mapRef.current) return;
+
+  const b = mapRef.current.getBounds();
+  const south = b.getSouth();
+  const west = b.getWest();
+  const north = b.getNorth();
+  const east = b.getEast();
+
+  // ключ, чтобы не грузить одно и то же
+  const key = `${south.toFixed(4)}:${west.toFixed(4)}:${north.toFixed(4)}:${east.toFixed(4)}:${statusFilter}:${problemMode}:${severityFilter}`;
+  if (lastBboxKeyRef.current === key) return;
+  lastBboxKeyRef.current = key;
+
+  const data = await getBuildings({ south, west, north, east });
+  setBuildings(data);
+}, [statusFilter, problemMode, severityFilter]);
+	
   useEffect(() => {
     if (!navigator.geolocation) return;
 
@@ -302,7 +316,32 @@ export default function MapView() {
       }
     );
   }, []);
-  
+
+  useEffect(() => {
+	  if (!mapRef.current) return;
+	
+	  const map = mapRef.current;
+	
+	  const schedule = () => {
+	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+	    loadTimerRef.current = setTimeout(() => {
+	      loadBuildingsForView().catch(() => {});
+	    }, 300);
+	  };
+	
+	  // первая загрузка
+	  schedule();
+	
+	  map.on("moveend", schedule);
+	  map.on("zoomend", schedule);
+	
+	  return () => {
+	    map.off("moveend", schedule);
+	    map.off("zoomend", schedule);
+	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+	  };
+	}, [loadBuildingsForView]);
+	
   useEffect(() => {
 	  if (!mapRef.current) return;
 	  if (!buildings.length) return;
