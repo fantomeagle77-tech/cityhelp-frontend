@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../api";
 import {
   AlertTriangle,
   TrendingUp,
@@ -68,11 +69,11 @@ export default function AnalyticsPage() {
   const [darkMode, setDarkMode] = useState(false);
  
   useEffect(() => {
-	  fetch("http://127.0.0.1:8000/analytics/top-buildings")
+	  fetch(`${API_BASE}/analytics/top-buildings`)
 		.then((r) => r.json())
 		.then(setTopBuildings);
 
-	  fetch("http://127.0.0.1:8000/analytics/severity-stats")
+	  fetch(`${API_BASE}/analytics/severity-stats`)
 		  .then((r) => r.json())
 		  .then((data) => {
 		  // Создаём полный объект со всеми типами
@@ -105,7 +106,7 @@ export default function AnalyticsPage() {
 		 
 		});
 
-	  fetch("http://127.0.0.1:8000/analytics/reports-by-day")
+	  fetch(`${API_BASE}/analytics/reports-by-day`)
 		  .then((r) => r.json())
 		  .then((data) => {
 			setDailyStats(data);
