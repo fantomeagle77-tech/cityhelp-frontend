@@ -24,10 +24,13 @@ async function request(path, options = {}) {
   return data;
 }
 
-export function getBuildings() {
-  return request("/buildings/");
+export function getBuildings({ south, west, north, east } = {}) {
+  const params =
+    south != null
+      ? `?south=${south}&west=${west}&north=${north}&east=${east}`
+      : "";
+  return request(`/buildings/${params}`);
 }
-
 export function createBuilding(payload) {
   // payload: {lat, lng, status?, address?}
   return request("/buildings/", { method: "POST", body: JSON.stringify(payload) });
