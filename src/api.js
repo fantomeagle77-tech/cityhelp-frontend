@@ -11,6 +11,7 @@ async function request(path, options = {}) {
   });
 
   const text = await res.text();
+  console.log("[API]", options?.method || "GET", `${API_BASE}${path}`, "status=", res.status, "text=", text?.slice(0, 200));
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
