@@ -630,7 +630,7 @@ export default function MapView() {
 				.map((b) => (
 				  <Marker
 					  key={b.id}
-					  position={[b.lat, b.lng]}
+					  position={[Number(b.lat), Number(b.lng)]}
 					  icon={
 						  createIconWithHelpBadge(
 							selectedBuilding && selectedBuilding.id === b.id
