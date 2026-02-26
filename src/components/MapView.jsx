@@ -292,7 +292,7 @@ export default function MapView() {
   if (lastBboxKeyRef.current === key) return;
   lastBboxKeyRef.current = key;
 
-  const data = await getBuildings({ south, west, north, east });
+  const data = await getBuildings(); // временно без bbox
   setBuildings(data);
 }, [statusFilter, problemMode, severityFilter]);
 	
