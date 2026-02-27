@@ -1144,6 +1144,7 @@ body.dark .kpi-card {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+  color: #2563eb;
   background: rgba(37,99,235,0.10);
 }
 
@@ -1152,4 +1153,11 @@ body.dark .kpi-card {
   margin-top: 6px;
   color: rgba(0,0,0,0.65);
   font-size: 14px;
+}
+
+.contact-svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  color: #2563eb; /* currentColor будет браться отсюда */
 }
