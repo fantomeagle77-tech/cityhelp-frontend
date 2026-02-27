@@ -277,12 +277,16 @@ export default function MapView() {
 	
   async function refreshBuildings() {
     await fetchBuildingsSafe();
+  const id = buildingId ?? selectedBuilding?.id;
+	if (!id) return;
+	
+	const updated = buildings.find((b) => String(b.id) === String(id));
+	if (updated) setSelectedBuilding(updated);
   }
 
   // Обновить дома + (если выбран) обновить выбранный дом и его жалобы
   async function refreshSelected(buildingId) {
-    const data = await getBuildings();
-    setBuildings(data);
+    
 
     const id = buildingId ?? selectedBuilding?.id;
     if (!id) return;
@@ -350,14 +354,14 @@ export default function MapView() {
 	  };
 	
 	  // первая загрузка
-	  // schedule();
+	  schedule();
 	
-	  // map.on("moveend", schedule);
-	  // map.on("zoomend", schedule);
+	  map.on("moveend", schedule);
+	  map.on("zoomend", schedule);
 	
 	  return () => {
-	    // map.off("moveend", schedule);
-	    // map.off("zoomend", schedule);
+	    map.off("moveend", schedule);
+	    map.off("zoomend", schedule);
 	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
 	  };
 	}, [mapReady, loadBuildingsForView]);
