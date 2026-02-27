@@ -391,9 +391,13 @@ export default function MapView() {
 	}, [buildings]);
 
   useEffect(() => {
+	  hasCenteredRef.current = false;
+	}, [buildingId]);
+	
+  useEffect(() => {
 	  if (hasCenteredRef.current) return;
 
-	  const buildingId = searchParams.get("building");
+	  const buildingId = searchParams.get("building") || searchParams.get("buildingId");
 	  if (!buildingId) return;
 	  if (!buildings.length) return;
 
@@ -457,6 +461,7 @@ export default function MapView() {
       setReports([]);
       cancelMove();
       setPanelClosing(false);
+	  navigate("/", { replace: true });
     }, 250);
   }
 
