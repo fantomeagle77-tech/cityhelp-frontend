@@ -390,21 +390,25 @@ export default function MapView() {
 
   useEffect(() => {
 	  if (hasCenteredRef.current) return;
-
-	  const buildingId = searchParams.get("building");
+	
+	  const buildingId = searchParams.get("building") || searchParams.get("buildingId");
 	  if (!buildingId) return;
+	
+	  // ждём данные
 	  if (!buildings.length) return;
-
-	  const found = buildings.find(
-		(b) => String(b.id) === String(buildingId)
-	  );
-
-	  if (!found) return;
-
+	
+	  const found = buildings.find((b) => String(b.id) === String(buildingId));
+	
+	  // если параметр есть, но дом не найден — чистим URL
+	  if (!found) {
+	    hasCenteredRef.current = true;
+	    navigate("/", { replace: true });
+	    return;
+	  }
+	
 	  hasCenteredRef.current = true;
 	  openReports(found);
-
-	}, [searchParams, buildings]);
+	}, [searchParams, buildings, navigate]);
   
   useEffect(() => {
 	  if (!selectedBuilding) return;
@@ -455,6 +459,7 @@ export default function MapView() {
       setReports([]);
       cancelMove();
       setPanelClosing(false);
+      navigate("/", { replace: true });
     }, 250);
   }
 
