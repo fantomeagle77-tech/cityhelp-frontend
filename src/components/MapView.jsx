@@ -211,6 +211,7 @@ function Heatmap({ data }) {
 export default function MapView() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const buildingId = searchParams.get("building") || searchParams.get("buildingId");
   const [buildings, setBuildings] = useState([]);
   const heatmapData = buildings
     .filter((b) => (b.high_count || 0) > 0 || (b.medium_count || 0) > 0 || (b.low_count || 0) > 0)
@@ -277,28 +278,27 @@ export default function MapView() {
 	
   async function refreshBuildings() {
     await fetchBuildingsSafe();
-  const id = buildingId ?? selectedBuilding?.id;
-	if (!id) return;
-	
-	const updated = buildings.find((b) => String(b.id) === String(id));
-	if (updated) setSelectedBuilding(updated);
   }
 
   // Обновить дома + (если выбран) обновить выбранный дом и его жалобы
   async function refreshSelected(buildingId) {
-    
+    // 1) обновляем список домов (с ретраями)
+    await fetchBuildingsSafe();
 
+    // 2) определяем id
     const id = buildingId ?? selectedBuilding?.id;
     if (!id) return;
 
-    const updated = data.find((b) => String(b.id) === String(id));
+    // 3) берём обновлённый дом из текущего state buildings
+    const updated = buildings.find((b) => String(b.id) === String(id));
     if (updated) setSelectedBuilding(updated);
 
+    // 4) обновляем жалобы по дому
     try {
       const list = await getReportsByBuilding(id);
       setReports(list);
     } catch {
-      // список жалоб не обязателен для рендера
+      setReports([]);
     }
   }
 
@@ -397,7 +397,6 @@ export default function MapView() {
   useEffect(() => {
 	  if (hasCenteredRef.current) return;
 
-	  const buildingId = searchParams.get("building") || searchParams.get("buildingId");
 	  if (!buildingId) return;
 	  if (!buildings.length) return;
 
