@@ -350,14 +350,14 @@ export default function MapView() {
 	  };
 	
 	  // первая загрузка
-	  schedule();
+	  // schedule();
 	
-	  map.on("moveend", schedule);
-	  map.on("zoomend", schedule);
+	  // map.on("moveend", schedule);
+	  // map.on("zoomend", schedule);
 	
 	  return () => {
-	    map.off("moveend", schedule);
-	    map.off("zoomend", schedule);
+	    // map.off("moveend", schedule);
+	    // map.off("zoomend", schedule);
 	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
 	  };
 	}, [mapReady, loadBuildingsForView]);
