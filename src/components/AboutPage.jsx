@@ -1,3 +1,6 @@
+import MailIcon from "../assets/icons/mail.svg";
+import TelegramIcon from "../assets/icons/telegram.svg";
+
 export default function AboutPage() {
   return (
     <div className="about-page">
@@ -42,7 +45,9 @@ export default function AboutPage() {
         <div className="contact-row">
           {/* Email */}
           <a className="contact-btn" href="mailto:fantomeagle77@gmail.com">
-            <span className="contact-ico">✉️</span>
+            <span className="contact-ico">
+              <img src={MailIcon} alt="" className="contact-svg" />
+            </span>
             <span>fantomeagle77@gmail.com</span>
           </a>
 
@@ -54,7 +59,9 @@ export default function AboutPage() {
             rel="noreferrer"
             title="По вопросам сотрудничества и поддержки проекта"
           >
-            <span className="contact-ico">✈️</span>
+            <span className="contact-ico">
+              <img src={TelegramIcon} alt="" className="contact-svg" />
+            </span>
             <span>Telegram: @alphasoftlab</span>
           </a>
 
