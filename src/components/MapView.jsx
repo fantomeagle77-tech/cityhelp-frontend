@@ -598,6 +598,9 @@ export default function MapView() {
 
   return (
     <div className="layout">
+		<h1 style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+		  CityHelp — карта обращений и мониторинг домов
+		</h1>
       <div className="map-wrapper">
         <MapContainer
 		  center={mapCenter}
