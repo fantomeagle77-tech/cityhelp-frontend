@@ -340,6 +340,39 @@ export default function MapView() {
   }, []);
 
   useEffect(() => {
+	  let cancelled = false;
+	
+	  const load = async () => {
+	    try {
+	      const data = await getBuildings();
+	      if (!cancelled) setBuildings(data);
+	    } catch (e) {
+	      // ВАЖНО: не обнуляем buildings, просто лог
+	      console.log("[BUILDINGS_INIT_FAIL]", e);
+	    }
+	  };
+	
+	  load();
+	
+	  const onFocus = () => load();
+	  const onOnline = () => load();
+	  const onVis = () => {
+	    if (document.visibilityState === "visible") load();
+	  };
+	
+	  window.addEventListener("focus", onFocus);
+	  window.addEventListener("online", onOnline);
+	  document.addEventListener("visibilitychange", onVis);
+	
+	  return () => {
+	    cancelled = true;
+	    window.removeEventListener("focus", onFocus);
+	    window.removeEventListener("online", onOnline);
+	    document.removeEventListener("visibilitychange", onVis);
+	  };
+	}, []);
+	
+  useEffect(() => {
 	  if (!mapReady || !mapRef.current) return;
 	
 	  const map = mapRef.current;
