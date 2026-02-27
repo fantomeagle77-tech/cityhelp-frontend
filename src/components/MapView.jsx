@@ -255,9 +255,28 @@ export default function MapView() {
   const loadTimerRef = useRef(null);
   const lastBboxKeyRef = useRef("");
 
+  const fetchBuildingsSafe = useCallback(async () => {
+	  // 3 попытки: 0.6s / 1.2s / 2.0s (Render просыпается)
+	  const delays = [600, 1200, 2000];
+	
+	  for (let attempt = 0; attempt < delays.length; attempt++) {
+	    try {
+	      const data = await getBuildings(); // пока без bbox
+	      setBuildings(data);
+	      return true;
+	    } catch (e) {
+	      // НЕ очищаем buildings — чтобы метки не пропадали
+	      console.log("[BUILDINGS_FETCH_FAIL]", attempt + 1, e);
+	
+	      await new Promise((r) => setTimeout(r, delays[attempt]));
+	    }
+	  }
+	
+	  return false;
+	}, []);	
+	
   async function refreshBuildings() {
-    const data = await getBuildings();
-    setBuildings(data);
+    await fetchBuildingsSafe();
   }
 
   // Обновить дома + (если выбран) обновить выбранный дом и его жалобы
@@ -293,22 +312,10 @@ export default function MapView() {
   if (lastBboxKeyRef.current === key) return;
   lastBboxKeyRef.current = key;
 
-  const data = await getBuildings(); // временно без bbox
-  setBuildings(data);
-}, [statusFilter, problemMode, severityFilter]);
+  await fetchBuildingsSafe();
+}, [statusFilter, problemMode, severityFilter, fetchBuildingsSafe]);
 
-  useEffect(() => {
-	  (async () => {
-	    try {
-	      const data = await getBuildings();
-	      console.log("[BUILDINGS_FETCHED]", data);
-	      setBuildings(data);
-	    } catch (e) {
-	      console.log("[BUILDINGS_FETCH_ERROR]", e);
-	    }
-	  })();
-	}, []);
-	
+  
   useEffect(() => {
     if (!navigator.geolocation) return;
 
@@ -343,14 +350,14 @@ export default function MapView() {
 	  };
 	
 	  // первая загрузка
-	  // schedule();
+	  schedule();
 	
-	  // map.on("moveend", schedule);
-	  // map.on("zoomend", schedule);
+	  map.on("moveend", schedule);
+	  map.on("zoomend", schedule);
 	
 	  return () => {
-	    // map.off("moveend", schedule);
-	    // map.off("zoomend", schedule);
+	    map.off("moveend", schedule);
+	    map.off("zoomend", schedule);
 	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
 	  };
 	}, [mapReady, loadBuildingsForView]);
