@@ -1103,3 +1103,53 @@ body.dark .kpi-card {
   70% { box-shadow: 0 0 0 15px rgba(211,47,47,0); }
   100% { box-shadow: 0 0 0 10px rgba(211,47,47,0); }
 }
+
+.about-contacts {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+.contact-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.10);
+}
+
+.contact-ico {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(37,99,235,0.10);
+}
+
+.contact-note {
+  width: 100%;
+  margin-top: 6px;
+  color: rgba(0,0,0,0.65);
+  font-size: 14px;
+}
