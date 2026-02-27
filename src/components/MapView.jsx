@@ -254,11 +254,28 @@ export default function MapView() {
   const [mapZoom, setMapZoom] = useState(12);
   const loadTimerRef = useRef(null);
   const lastBboxKeyRef = useRef("");
+  const fetchBuildingsSafe = useCallback(async () => {
+	  // 3 попытки: 0.6s / 1.2s / 2.0s (Render иногда “просыпается”)
+	  const delays = [600, 1200, 2000];
+	
+	  for (let attempt = 0; attempt < delays.length; attempt++) {
+	    try {
+	      const data = await getBuildings();
+	      setBuildings(Array.isArray(data) ? data : []);
+	      return true;
+	    } catch (e) {
+	      // ВАЖНО: не очищаем buildings, чтобы метки не “пропадали”
+	      console.log("[BUILDINGS_FETCH_FAIL]", attempt + 1, e);
+	      await new Promise((r) => setTimeout(r, delays[attempt]));
+	    }
+	  }
+	
+	  return false;
+	}, []);
 
   async function refreshBuildings() {
-    const data = await getBuildings();
-    setBuildings(data);
-  }
+	  await fetchBuildingsSafe();
+	}
 
   // Обновить дома + (если выбран) обновить выбранный дом и его жалобы
   async function refreshSelected(buildingId) {
@@ -298,16 +315,8 @@ export default function MapView() {
 }, [statusFilter, problemMode, severityFilter]);
 
   useEffect(() => {
-	  (async () => {
-	    try {
-	      const data = await getBuildings();
-	      console.log("[BUILDINGS_FETCHED]", data);
-	      setBuildings(data);
-	    } catch (e) {
-	      console.log("[BUILDINGS_FETCH_ERROR]", e);
-	    }
-	  })();
-	}, []);
+	  fetchBuildingsSafe().catch(() => {});
+	}, [fetchBuildingsSafe]);
 	
   useEffect(() => {
     if (!navigator.geolocation) return;
