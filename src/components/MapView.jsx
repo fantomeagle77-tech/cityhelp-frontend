@@ -762,28 +762,7 @@ export default function MapView() {
 		  )}
         </MapContainer>
 
-		<div
-		  style={{
-		    position: "absolute",
-		    left: 20,
-		    bottom: 165,          // <-- выше легенды, не накладывается
-		    maxWidth: 420,
-		    background: "rgba(255,255,255,0.92)",
-		    padding: "10px 12px",
-		    borderRadius: 12,
-		    zIndex: 900,          // <-- ниже чем у легенды (1000), чтобы легенда всегда сверху
-		    pointerEvents: "none" // <-- не мешает карте (клики проходят сквозь блок)
-		  }}
-		>
-		  <div style={{ fontWeight: 700, marginBottom: 4 }}>
-		    Городской мониторинг домов
-		  </div>
-		  <div style={{ fontSize: 10, lineHeight: 1.35 }}>
-		    CityHelp показывает обращения жителей по домам: жалобы, статусы, аналитика и соседская помощь.
-		    Используйте карту, чтобы видеть ситуацию в районе и добавлять обращения.
-		  </div>
-		</div>
-		  
+			  
 		<div
 		  style={{
 			position: "absolute",
