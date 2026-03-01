@@ -606,18 +606,19 @@ export default function MapView() {
 		  style={{
 		    position: "absolute",
 		    left: 20,
-		    bottom: 90,
+		    bottom: 170,              // было 90 → поднимаем выше легенды
 		    maxWidth: 420,
-		    background: "rgba(255,255,255,0.9)",
+		    background: "rgba(255,255,255,0.92)",
 		    padding: "10px 12px",
 		    borderRadius: 12,
-		    zIndex: 1000,
+		    zIndex: 500,              // можно 500, не надо 1000
+		    pointerEvents: "none",    // ✅ КЛЮЧЕВОЕ: клики проходят сквозь блок
 		  }}
 		>
 		  <div style={{ fontWeight: 700, marginBottom: 4 }}>
 		    Городской мониторинг домов
 		  </div>
-		  <div style={{ fontSize: 13, lineHeight: 1.35 }}>
+		  <div style={{ fontSize: 10, lineHeight: 1.35 }}>
 		    CityHelp показывает обращения жителей по домам: жалобы, статусы, аналитика и соседская помощь.
 		    Используйте карту, чтобы видеть ситуацию в районе и добавлять обращения.
 		  </div>
