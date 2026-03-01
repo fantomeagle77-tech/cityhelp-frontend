@@ -20,47 +20,113 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
 async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
 
-  // 3 попытки: 0.8s / 1.5s / 2.5s (Render просыпается)
-  const delays = [800, 1500, 2500];
-  let lastErr = null;
+  // --- таймаут на запрос ---
+  const timeoutMs = options.timeoutMs ?? 12000; // 12s на попытку
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
 
-  for (let i = 0; i < delays.length; i++) {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: isFormData
+        ? options.headers
+        : { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+      signal: controller.signal,
+    });
+
+    const text = await res.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+
+    if (!res.ok) {
+      const err = new Error("Request failed");
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+
+    return data;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+export async function getBuildings() {
+  // 0) мгновенно показываем кэш, чтобы не было пусто
+  const cached = sessionStorage.getItem("buildings_cache");
+  if (cached) {
     try {
-      const res = await fetchWithTimeout(`${API_BASE}${path}`, {
-        headers: isFormData
-          ? (options.headers || {})
-          : { "Content-Type": "application/json", ...(options.headers || {}) },
-        ...options,
-      });
+      const parsed = JSON.parse(cached);
+      // в фоне всё равно обновим
+      refreshBuildingsInBackground();
+      return parsed;
+    } catch {}
+  }
 
-      const text = await res.text();
-      let data = null;
-      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  // 1) прогрев: лёгкий запрос на корень (он быстрее/проще)
+  // (если бэк спит — этот вызов тоже “разбудит” инстанс)
+  await warmupBackend();
 
-      if (!res.ok) {
-        const err = new Error("Request failed");
-        err.status = res.status;
-        err.data = data;
-        throw err;
-      }
+  // 2) основной запрос с долгими ретраями под твои 120 секунд
+  const data = await requestWithRetry(
+    "/buildings/",
+    { method: "GET", timeoutMs: 15000 },          // 15s на попытку
+    [0, 2000, 5000, 10000, 20000, 30000, 45000]   // суммарно перекрывает 120s+
+  );
 
-      return data;
+  try { sessionStorage.setItem("buildings_cache", JSON.stringify(data)); } catch {}
+  return data;
+}
+
+async function warmupBackend() {
+  // чтобы не долбить прогревом постоянно
+  const last = Number(sessionStorage.getItem("api_warmup_ts") || 0);
+  const now = Date.now();
+  if (now - last < 60_000) return; // 1 минута
+
+  sessionStorage.setItem("api_warmup_ts", String(now));
+
+  try {
+    // корень у тебя есть: @app.get("/")
+    await request("/", { method: "GET", timeoutMs: 8000 });
+  } catch {
+    // даже если упало — это всё равно запускает “просыпание”
+  }
+}
+
+async function refreshBuildingsInBackground() {
+  try {
+    await warmupBackend();
+    const data = await requestWithRetry(
+      "/buildings/",
+      { method: "GET", timeoutMs: 15000 },
+      [2000, 5000, 10000]
+    );
+    sessionStorage.setItem("buildings_cache", JSON.stringify(data));
+  } catch {}
+}
+
+async function requestWithRetry(path, options, delaysMs) {
+  let lastErr;
+
+  for (let i = 0; i < delaysMs.length; i++) {
+    if (delaysMs[i] > 0) await new Promise((r) => setTimeout(r, delaysMs[i]));
+
+    try {
+      return await request(path, options);
     } catch (e) {
       lastErr = e;
-      // retry
-      if (i < delays.length - 1) await sleep(delays[i]);
+
+      const status = e?.status;
+      const isNetwork = !status; // aborted / failed to fetch / connection closed
+      const isRetryStatus = [502, 503, 504].includes(status);
+
+      // если это НЕ сетевое и НЕ 502/503/504 — смысла ретраить нет
+      if (!(isNetwork || isRetryStatus)) throw e;
     }
   }
 
   throw lastErr;
-}
-
-export function getBuildings({ south, west, north, east } = {}) {
-  const params =
-    south != null
-      ? `?south=${south}&west=${west}&north=${north}&east=${east}`
-      : "";
-  return request(`/buildings/${params}`);
 }
 export function createBuilding(payload) {
   // payload: {lat, lng, status?, address?}
