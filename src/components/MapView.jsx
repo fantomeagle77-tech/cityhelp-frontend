@@ -606,7 +606,7 @@ export default function MapView() {
 		  style={{
 		    position: "absolute",
 		    right: 20,
-		    bottom: 50,              // было 90 → поднимаем выше легенды
+		    bottom: 20,              // было 90 → поднимаем выше легенды
 		    maxWidth: 420,
 		    background: "rgba(255,255,255,0.92)",
 		    padding: "10px 12px",
