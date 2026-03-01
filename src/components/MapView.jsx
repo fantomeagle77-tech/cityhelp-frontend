@@ -605,8 +605,8 @@ export default function MapView() {
 		<div
 		  style={{
 		    position: "absolute",
-		    left: 20,
-		    bottom: 170,              // было 90 → поднимаем выше легенды
+		    right: 20,
+		    bottom: 40,              // было 90 → поднимаем выше легенды
 		    maxWidth: 420,
 		    background: "rgba(255,255,255,0.92)",
 		    padding: "10px 12px",
