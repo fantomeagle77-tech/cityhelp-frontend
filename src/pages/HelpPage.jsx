@@ -187,6 +187,7 @@ function isHot(item, responseCount) {
   return (
 	  <div
 		className="help-container"
+		<h1>Соседская помощь</h1>  
 		style={{
 		  padding: "60px 40px",
 		  maxWidth: 1200,
