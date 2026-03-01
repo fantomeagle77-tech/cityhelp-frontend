@@ -757,7 +757,7 @@ export default function MapView() {
 		  <div style={{ fontWeight: 700, marginBottom: 4 }}>
 		    Городской мониторинг домов
 		  </div>
-		  <div style={{ fontSize: 8, lineHeight: 1.35 }}>
+		  <div style={{ fontSize: 10, lineHeight: 1.35 }}>
 		    CityHelp показывает обращения жителей по домам: жалобы, статусы, аналитика и соседская помощь.
 		    Используйте карту, чтобы видеть ситуацию в районе и добавлять обращения.
 		  </div>
