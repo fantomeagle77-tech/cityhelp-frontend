@@ -1164,19 +1164,22 @@ body.dark .kpi-card {
 
 /* ===== Mobile layout fixes ===== */
 @media (max-width: 768px) {
-  /* общий контейнер */
   .layout {
     display: block !important;
+    height: 100vh !important;
   }
 
-  /* карта всегда на весь экран по ширине */
   .map-wrapper {
     width: 100% !important;
-    height: calc(100vh - 56px) !important; /* если хедер высокий — поправим */
+    height: calc(100vh - var(--header-h)) !important;
     position: relative;
   }
 
-  /* правая панель превращается в нижний лист */
+  .leaflet-container {
+    height: 100% !important;
+    width: 100% !important;
+  }
+
   .panel-wrapper {
     position: fixed !important;
     left: 0 !important;
@@ -1190,14 +1193,13 @@ body.dark .kpi-card {
     border-radius: 16px 16px 0 0 !important;
     overflow: auto !important;
     box-shadow: 0 -12px 30px rgba(0,0,0,0.25) !important;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
   }
 
-  /* если есть анимация closing — оставляем */
   .panel-wrapper.closing {
     opacity: 0.6;
   }
 
-  /* кнопка добавления — вниз слева */
   .add-marker-btn {
     left: 12px !important;
     top: auto !important;
@@ -1205,9 +1207,13 @@ body.dark .kpi-card {
     z-index: 2100 !important;
   }
 
-  /* фильтры справа сверху уменьшить */
   .status-filter {
     width: auto !important;
     max-width: calc(100vw - 24px) !important;
+  }
+
+  /* чтобы элементы Leaflet снизу не прятались под панель */
+  .leaflet-bottom {
+    bottom: calc(55vh + 12px) !important;
   }
 }
