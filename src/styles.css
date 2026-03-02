@@ -1217,11 +1217,20 @@ body.dark .kpi-card {
     bottom: 0 !important;
     top: auto !important;
     height: 55dvh !important;
-    z-index: 2200 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    z-index: 9999 !important; /* важно! */
+    background: #fff !important;
+
     border-radius: 16px 16px 0 0 !important;
     overflow: auto !important;
     box-shadow: 0 -12px 30px rgba(0,0,0,0.25) !important;
     padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-    background: #fff !important;
+  }
+
+  /* карта под панелью — чтобы Leaflet копирайт/контролы не перекрывали */
+  .leaflet-control-container {
+    z-index: 1 !important;
   }
 }
