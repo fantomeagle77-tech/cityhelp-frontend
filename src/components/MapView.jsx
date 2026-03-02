@@ -965,7 +965,7 @@ export default function MapView() {
 
       {/* SidePanel справа */}
       {selectedBuilding && (
-        <div className={`panel-wrapper ${panelClosing ? "closing" : ""}`}>
+        <div className={`panel-wrapper mobile-sheet ${panelClosing ? "closing" : ""}`}>
 		  <SidePanel
 		    building={selectedBuilding}
 		    reports={reports}
