@@ -1161,3 +1161,53 @@ body.dark .kpi-card {
   display: block;
   color: #2563eb; /* currentColor будет браться отсюда */
 }
+
+/* ===== Mobile layout fixes ===== */
+@media (max-width: 768px) {
+  /* общий контейнер */
+  .layout {
+    display: block !important;
+  }
+
+  /* карта всегда на весь экран по ширине */
+  .map-wrapper {
+    width: 100% !important;
+    height: calc(100vh - 56px) !important; /* если хедер высокий — поправим */
+    position: relative;
+  }
+
+  /* правая панель превращается в нижний лист */
+  .panel-wrapper {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 55vh !important;
+    z-index: 2000 !important;
+    border-radius: 16px 16px 0 0 !important;
+    overflow: auto !important;
+    box-shadow: 0 -12px 30px rgba(0,0,0,0.25) !important;
+  }
+
+  /* если есть анимация closing — оставляем */
+  .panel-wrapper.closing {
+    opacity: 0.6;
+  }
+
+  /* кнопка добавления — вниз слева */
+  .add-marker-btn {
+    left: 12px !important;
+    top: auto !important;
+    bottom: 16px !important;
+    z-index: 2100 !important;
+  }
+
+  /* фильтры справа сверху уменьшить */
+  .status-filter {
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
