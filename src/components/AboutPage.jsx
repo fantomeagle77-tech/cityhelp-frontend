@@ -85,7 +85,7 @@ export default function AboutPage() {
           </a>
 
           <div className="contact-note">
-            По вопросам сотрудничества и поддержки проекта — пишите в Telegram.
+            По вопросам сотрудничества и поддержки проекта — пишите в Telegram. Проект частный, открытый и сделан для жителей.
           </div>
         </div>
       </section>
