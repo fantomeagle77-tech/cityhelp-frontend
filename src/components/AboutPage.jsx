@@ -1,6 +1,7 @@
 import MailIcon from "../assets/icons/mail.svg";
 import TelegramIcon from "../assets/icons/telegram.svg";
 import Seo from "../components/Seo";
+import { Link } from "react-router-dom";
 
 export default function AboutPage() {
 return (
@@ -93,6 +94,24 @@ return (
         <li>🟠 Проблемно</li>
         <li>🔴 Критично</li>
       </ul>
+
+      <div className="about-contacts">
+        <h2>Доверие и правила</h2>
+      
+        <div className="contact-row">
+          <Link className="contact-btn" to="/privacy">
+            Приватность
+          </Link>
+      
+          <Link className="contact-btn" to="/safety">
+            Безопасность
+          </Link>
+        </div>
+      
+        <div className="contact-note">
+          Эти страницы объясняют, что CityHelp — частный независимый сервис взаимопомощи и как мы защищаем пользователей.
+        </div>
+      </div>
 
       {/* Контакты */}
       <section className="about-contacts">
