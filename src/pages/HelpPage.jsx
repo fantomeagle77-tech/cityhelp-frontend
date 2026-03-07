@@ -198,7 +198,7 @@ function isHot(item, responseCount) {
 	      style={{
 	        padding: "60px 40px",
 	        maxWidth: 1200,
-	        margin: "0 auto"
+	        margin: "0 auto",
 	      }}
 	    >
 		<div style={{ marginBottom: 40 }}>
