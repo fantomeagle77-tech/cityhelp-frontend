@@ -13,7 +13,10 @@ import { useNavigate } from "react-router-dom";
 
 
 
+
 import SidePanel from "./SidePanel";
+import Seo from "./Seo";
+
 import {
   createBuilding,
   getBuildings,
@@ -598,6 +601,11 @@ export default function MapView() {
 
   return (
     <div className="layout">
+		<Seo
+	      title="CityHelp — карта обращений и домовой мониторинг"
+	      description="Частный независимый сервис: жалобы по домам, статусы, аналитика и соседская помощь. Добавляйте обращения и оценивайте район."
+	      canonical="https://cityhelp.app/"
+	    />
 		<h1 style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
 		  CityHelp — карта обращений и мониторинг домов
 		</h1>
