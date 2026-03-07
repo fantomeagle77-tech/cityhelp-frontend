@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getBuildings, getHelp, createHelp, getHelpResponses, respondToHelp } from "../api";
 import { useSearchParams } from "react-router-dom";
+import Seo from "../components/Seo";
 
 export default function HelpPage() {
   const [items, setItems] = useState([]);
@@ -185,14 +186,21 @@ function isHot(item, responseCount) {
   }
 
   return (
-	  <div
-		className="help-container"
-		style={{
-		  padding: "60px 40px",
-		  maxWidth: 1200,
-		  margin: "0 auto"
-		}}
-	  >
+	  <>
+	    <Seo
+	      title="Соседская помощь CityHelp — запросы рядом с домом"
+	      description="Раздел соседской помощи CityHelp: создавайте запросы по дому и откликайтесь на просьбы соседей."
+	      canonical="https://cityhelp.app/help"
+	    />
+	
+	    <div
+	      className="help-container"
+	      style={{
+	        padding: "60px 40px",
+	        maxWidth: 1200,
+	        margin: "0 auto"
+	      }}
+	    >
 		<div style={{ marginBottom: 40 }}>
 		  <h1
 			style={{
@@ -613,8 +621,9 @@ function isHot(item, responseCount) {
 
 		  </div>
 
-		</div>
+    </div>
 
-	  </div>
-	);
+  </div>
+  </>
+);
 }
