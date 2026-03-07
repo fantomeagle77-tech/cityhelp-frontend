@@ -2,6 +2,7 @@ import MailIcon from "../assets/icons/mail.svg";
 import TelegramIcon from "../assets/icons/telegram.svg";
 import Seo from "../components/Seo";
 
+export default function AboutPage() {
 return (
   <>
     <Seo
