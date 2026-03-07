@@ -2,13 +2,14 @@ import MailIcon from "../assets/icons/mail.svg";
 import TelegramIcon from "../assets/icons/telegram.svg";
 import Seo from "../components/Seo";
 
-export default function AboutPage() {
-  return (
+return (
+  <>
     <Seo
       title="О проекте CityHelp — частный независимый городской сервис"
-      description="CityHelp — частный независимый сервис взаимопомощи жителей. Это не гос-портал и не ловушка: цель — дать людям прозрачную картину по дому и району."
+      description="CityHelp — частный независимый сервис взаимопомощи жителей. Это не гос-портал: цель — дать людям прозрачную картину по дому, двору и району."
       canonical="https://cityhelp.app/about"
     />
+
     <div className="about-page">
       <h1>О проекте</h1>
 
@@ -125,5 +126,6 @@ export default function AboutPage() {
         </div>
       </section>
     </div>
-  );
+  </>
+);
 }
