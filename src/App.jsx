@@ -7,6 +7,8 @@ import { useState } from "react";
 import "./styles.css";
 import HelpPage from "./pages/HelpPage";
 import { useLocation } from "react-router-dom";
+import PrivacyPage from "./pages/PrivacyPage";
+import SafetyPage from "./pages/SafetyPage";
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -44,6 +46,8 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
 		  <Route path="/help" element={<HelpPage />} />
+		  <Route path="/privacy" element={<PrivacyPage />} />
+		  <Route path="/safety" element={<SafetyPage />} />
         </Routes>
       </div>
     </div>
