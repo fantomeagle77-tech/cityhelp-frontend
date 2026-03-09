@@ -11,6 +11,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import SafetyPage from "./pages/SafetyPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import ModerationPage from "./pages/ModerationPage";
+import FaqPage from "./pages/FaqPage";
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -49,6 +50,7 @@ function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
 		  <Route path="/help" element={<HelpPage />} />
 		  <Route path="/how-it-works" element={<HowItWorksPage />} />
+		  <Route path="/faq" element={<FaqPage />} />
 		  <Route path="/moderation" element={<ModerationPage />} />	
 		  <Route path="/privacy" element={<PrivacyPage />} />
 		  <Route path="/safety" element={<SafetyPage />} />
