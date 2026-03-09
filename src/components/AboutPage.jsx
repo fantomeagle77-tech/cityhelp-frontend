@@ -111,6 +111,15 @@ return (
         <div className="contact-note">
           Эти страницы объясняют, что CityHelp — частный независимый сервис взаимопомощи и как мы защищаем пользователей.
         </div>
+
+        <Link className="contact-btn" to="/how-it-works">
+          Как это работает
+        </Link>
+        
+        <Link className="contact-btn" to="/moderation">
+          Модерация
+        </Link>
+        
       </div>
 
       {/* Контакты */}
