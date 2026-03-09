@@ -12,6 +12,7 @@ import SafetyPage from "./pages/SafetyPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import ModerationPage from "./pages/ModerationPage";
 import FaqPage from "./pages/FaqPage";
+import GuideCheckHousePage from "./pages/GuideCheckHousePage";
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -51,6 +52,7 @@ function App() {
 		  <Route path="/help" element={<HelpPage />} />
 		  <Route path="/how-it-works" element={<HowItWorksPage />} />
 		  <Route path="/faq" element={<FaqPage />} />
+		  <Route path="/guides/kak-proverit-dom-pered-pokupkoy" element={<GuideCheckHousePage />} />
 		  <Route path="/moderation" element={<ModerationPage />} />	
 		  <Route path="/privacy" element={<PrivacyPage />} />
 		  <Route path="/safety" element={<SafetyPage />} />
