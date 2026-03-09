@@ -119,6 +119,10 @@ return (
         <Link className="contact-btn" to="/faq">
           FAQ
         </Link>
+
+        <Link className="contact-btn" to="/guides/kak-proverit-dom-pered-pokupkoy">
+          Как проверить дом перед покупкой
+        </Link>
         
         <Link className="contact-btn" to="/moderation">
           Модерация
