@@ -9,6 +9,8 @@ import HelpPage from "./pages/HelpPage";
 import { useLocation } from "react-router-dom";
 import PrivacyPage from "./pages/PrivacyPage";
 import SafetyPage from "./pages/SafetyPage";
+import HowItWorksPage from "./pages/HowItWorksPage";
+import ModerationPage from "./pages/ModerationPage";
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -46,6 +48,8 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
 		  <Route path="/help" element={<HelpPage />} />
+		  <Route path="/how-it-works" element={<HowItWorksPage />} />
+		  <Route path="/moderation" element={<ModerationPage />} />	
 		  <Route path="/privacy" element={<PrivacyPage />} />
 		  <Route path="/safety" element={<SafetyPage />} />
         </Routes>
