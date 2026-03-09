@@ -145,6 +145,11 @@ return (
           </div>
         </div>
       </section>
+      <div style={{ marginTop: 28, paddingTop: 18, borderTop: "1px solid rgba(0,0,0,0.08)" }}>
+        <div style={{ fontSize: 13, color: "rgba(0,0,0,0.65)" }}>
+          © {new Date().getFullYear()} CityHelp (AlphaSoftLab). Лицензия: PolyForm Noncommercial.
+        </div>
+      </div>
     </div>
   </>
 );
