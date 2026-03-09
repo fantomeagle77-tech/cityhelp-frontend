@@ -115,6 +115,10 @@ return (
         <Link className="contact-btn" to="/how-it-works">
           Как это работает
         </Link>
+
+        <Link className="contact-btn" to="/faq">
+          FAQ
+        </Link>
         
         <Link className="contact-btn" to="/moderation">
           Модерация
