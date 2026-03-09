@@ -152,6 +152,22 @@ return (
           <div className="contact-note">
             По вопросам сотрудничества и поддержки проекта — пишите в Telegram. Проект частный, открытый и сделан для жителей.
           </div>
+
+          <div style={{ marginTop: 16 }}>
+            <a
+              className="contact-btn"
+              href="https://t.me/alphasoftlab"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Поддержать проект
+            </a>
+          </div>
+          
+          <div className="contact-note">
+            Если проект вам полезен, вы можете поддержать его и написать по вопросам сотрудничества в Telegram.
+          </div>
+          
         </div>
       </section>
       <div style={{ marginTop: 28, paddingTop: 18, borderTop: "1px solid rgba(0,0,0,0.08)" }}>
