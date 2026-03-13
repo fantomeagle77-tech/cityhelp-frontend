@@ -19,20 +19,21 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
 
 async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
+  const method = (options.method || "GET").toUpperCase();
 
-  // --- таймаут на запрос ---
-  const timeoutMs = options.timeoutMs ?? 12000; // 12s на попытку
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), timeoutMs);
+  const headers = { ...(options.headers || {}) };
 
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: isFormData
-        ? options.headers
-        : { "Content-Type": "application/json", ...(options.headers || {}) },
-      ...options,
-      signal: controller.signal,
-    });
+  // ВАЖНО:
+  // Content-Type ставим только там, где реально есть JSON body.
+  // Для GET НЕ ставим, иначе браузер делает лишний OPTIONS preflight.
+  if (!isFormData && options.body != null && method !== "GET") {
+    headers["Content-Type"] = "application/json";
+  }
+  try{
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+  });
 
     const text = await res.text();
     let data = null;
