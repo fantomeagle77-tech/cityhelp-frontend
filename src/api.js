@@ -211,6 +211,18 @@ export function createHelp(payload) {
   });
 }
 
+export function confirmProblem(reportId) {
+  return request(`/reports/${reportId}/confirm-problem`, {
+    method: "POST",
+  });
+}
+
+export function confirmResolved(reportId) {
+  return request(`/reports/${reportId}/confirm-resolved`, {
+    method: "POST",
+  });
+}
+
 export function closeHelp(helpId) {
   return request(`/help/${helpId}/close`, {
     method: "POST",
