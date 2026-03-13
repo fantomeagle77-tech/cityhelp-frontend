@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createReport, confirmPositive } from "../api";
+import { createReport, confirmPositive, confirmProblem, confirmResolved, API_BASE } from "../api";
 import { trackEvent } from "../utils/analytics";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -601,132 +601,135 @@ export default function SidePanel({
 				  
 				  <div
 					  style={{
-						maxHeight: r.status === "open" ? 500 : 0,
-						opacity: r.status === "open" ? 1 : 0,
-						overflow: "hidden",
-						transition: "max-height 0.3s ease, opacity 0.2s ease"
+					    maxHeight: r.status === "open" ? 500 : 0,
+					    opacity: r.status === "open" ? 1 : 0,
+					    overflow: "hidden",
+					    transition: "max-height 0.3s ease, opacity 0.2s ease",
 					  }}
 					>
 					  {r.status === "open" && (
-						<div style={{ marginTop: 8 }}>
-
-						  {/* Прогресс проблемы */}
-						  <div style={{ fontSize: 13, marginBottom: 4 }}>
-							Подтверждения проблемы: {r.problem_confirmations}/3
-						  </div>
-
-						  <div
-							style={{
-							  height: 6,
-							  background: "#eee",
-							  borderRadius: 6,
-							  overflow: "hidden",
-							  marginBottom: 8
-							}}
-						  >
-							<div
-							  style={{
-								height: "100%",
-								width: `${(r.problem_confirmations / 3) * 100}%`,
-								background: "#ff9800",
-								transition: "width 0.3s ease"
-							  }}
-							/>
-						  </div>
-
-						  <button
-							  disabled={r.problem_confirmations >= 3}
-							  onClick={async () => {
-								await fetch(
-								  `http://127.0.0.1:8000/reports/${r.id}/confirm-problem`,
-								  { method: "POST" }
-								);
-								await onReportAdded(building.id);
-							  }}
-							  style={{
-								marginBottom: 12,
-								opacity: r.problem_confirmations >= 3 ? 0.5 : 1,
-								cursor: r.problem_confirmations >= 3 ? "not-allowed" : "pointer"
-							  }}
-							>
-							  Подтвердить проблему
-							</button>
-
-						  {/* Прогресс решения */}
-						  <div style={{ fontSize: 13, marginBottom: 4 }}>
-							Подтверждение решения проблемы: {r.resolved_confirmations}/3
-						  </div>
-
-						  <div
-							style={{
-							  height: 6,
-							  background: "#eee",
-							  borderRadius: 6,
-							  overflow: "hidden",
-							  marginBottom: 8
-							}}
-						  >
-							<div
-							  style={{
-								height: "100%",
-								width: `${(r.resolved_confirmations / 3) * 100}%`,
-								background: "#4caf50",
-								transition: "width 0.3s ease"
-							  }}
-							/>
-						  </div>
-
-						  <button
-							  disabled={r.resolved_confirmations >= 3}
-							  onClick={async () => {
-								await fetch(
-								  `http://127.0.0.1:8000/reports/${r.id}/confirm-resolved`,
-								  { method: "POST" }
-								);
-								await onReportAdded(building.id);
-							  }}
-							  style={{
-								opacity: r.resolved_confirmations >= 3 ? 0.5 : 1,
-								cursor: r.resolved_confirmations >= 3 ? "not-allowed" : "pointer"
-							  }}
-							>
-							  Проблема решена
-							</button>
-
-						</div>
+					    <div style={{ marginTop: 8 }}>
+					      <div style={{ fontSize: 13, marginBottom: 4 }}>
+					        Подтверждения проблемы: {r.problem_confirmations}/3
+					      </div>
+					
+					      <div
+					        style={{
+					          height: 6,
+					          background: "#eee",
+					          borderRadius: 6,
+					          overflow: "hidden",
+					          marginBottom: 8,
+					        }}
+					      >
+					        <div
+					          style={{
+					            height: "100%",
+					            width: `${(r.problem_confirmations / 3) * 100}%`,
+					            background: "#ff9800",
+					            transition: "width 0.3s ease",
+					          }}
+					        />
+					      </div>
+					
+					      <button
+					        disabled={r.problem_confirmations >= 3}
+					        onClick={async () => {
+					          try {
+					            await confirmProblem(r.id);
+					            await onReportAdded?.(building.id);
+					          } catch (e) {
+					            alert(
+					              e?.data?.detail ||
+					                e?.message ||
+					                "Не удалось подтвердить проблему"
+					            );
+					          }
+					        }}
+					        style={{
+					          marginBottom: 12,
+					          opacity: r.problem_confirmations >= 3 ? 0.5 : 1,
+					          cursor: r.problem_confirmations >= 3 ? "not-allowed" : "pointer",
+					        }}
+					      >
+					        Подтвердить проблему
+					      </button>
+					
+					      <div style={{ fontSize: 13, marginBottom: 4 }}>
+					        Подтверждение решения проблемы: {r.resolved_confirmations}/3
+					      </div>
+					
+					      <div
+					        style={{
+					          height: 6,
+					          background: "#eee",
+					          borderRadius: 6,
+					          overflow: "hidden",
+					          marginBottom: 8,
+					        }}
+					      >
+					        <div
+					          style={{
+					            height: "100%",
+					            width: `${(r.resolved_confirmations / 3) * 100}%`,
+					            background: "#4caf50",
+					            transition: "width 0.3s ease",
+					          }}
+					        />
+					      </div>
+					
+					      <button
+					        disabled={r.resolved_confirmations >= 3}
+					        onClick={async () => {
+					          try {
+					            await confirmResolved(r.id);
+					            await onReportAdded?.(building.id);
+					          } catch (e) {
+					            alert(
+					              e?.data?.detail ||
+					                e?.message ||
+					                "Не удалось подтвердить решение"
+					            );
+					          }
+					        }}
+					        style={{
+					          opacity: r.resolved_confirmations >= 3 ? 0.5 : 1,
+					          cursor: r.resolved_confirmations >= 3 ? "not-allowed" : "pointer",
+					        }}
+					      >
+					        Проблема решена
+					      </button>
+					    </div>
 					  )}
 					</div>
-
-
-				  <div style={{ marginTop: 8, fontSize: 14, color: "#444" }}>
-					{r.text}
-					{r.image_path && (
-					  <div style={{ marginTop: 8 }}>
-						<img
-						  src={`http://127.0.0.1:8000${r.image_path}`}
-						  alt="report"
-						  style={{
-							width: "100%",
-							maxHeight: 300,
-							objectFit: "cover",
-							borderRadius: 8,
-							cursor: "pointer",
-						  }}
-						  onClick={() =>
-							setLightboxImage(`http://127.0.0.1:8000${r.image_path}`)
-						  }
-						/>
-					  </div>
-					)}
-				  </div>
-
-				  <div className="report-date">
-					{new Date(r.created_at).toLocaleDateString("ru-RU")}
-				  </div>
-
-				  <div className="report-periodicity">
-					{PERIODICITY_LABEL[r.periodicity] || r.periodicity}
-				  </div>
+					
+					<div style={{ marginTop: 8, fontSize: 14, color: "#444" }}>
+					  {r.text}
+					  {r.image_path && (
+					    <div style={{ marginTop: 8 }}>
+					      <img
+					        src={`${API_BASE}${r.image_path}`}
+					        alt="report"
+					        style={{
+					          width: "100%",
+					          maxHeight: 300,
+					          objectFit: "cover",
+					          borderRadius: 8,
+					          cursor: "pointer",
+					        }}
+					        onClick={() => setLightboxImage(`${API_BASE}${r.image_path}`)}
+					      />
+					    </div>
+					  )}
+					</div>
+					
+					<div className="report-date">
+					  {new Date(r.created_at).toLocaleDateString("ru-RU")}
+					</div>
+					
+					<div className="report-periodicity">
+					  {PERIODICITY_LABEL[r.periodicity] || r.periodicity}
+					</div>
 
 				</div>
 			  ))}
