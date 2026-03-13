@@ -235,6 +235,7 @@ export default function MapView() {
   const [problemMode, setProblemMode] = useState(false);
   const [severityFilter, setSeverityFilter] = useState(null);
   const mapRef = useRef(null);
+  const didInitialFitRef = useRef(false);
   const [mapReady, setMapReady] = useState(false);
   const [buildingsLoading, setBuildingsLoading] = useState(true);
   const markersRef = useRef({});
@@ -275,35 +276,53 @@ export default function MapView() {
 	  return false;
 	}, []);
 
-  async function refreshBuildings() {
-	try {
-	  setBuildingsLoading(true);
-	  const data = await getBuildings();
-	  setBuildings(Array.isArray(data) ? data : []);
-	} catch (e) {
-	  console.log("[BUILDINGS_LOAD_ERROR]", e);
-	} finally {
-	  setBuildingsLoading(false);
+  const buildingsRequestRef = useRef(null);
+
+	async function refreshBuildings() {
+	  // если запрос уже идет — не запускаем новый
+	  if (buildingsRequestRef.current) return;
+	
+	  const promise = (async () => {
+	    try {
+	      setBuildingsLoading(true);
+	      const data = await getBuildings();
+	      setBuildings(Array.isArray(data) ? data : []);
+	    } catch (e) {
+	      console.log("[BUILDINGS_LOAD_ERROR]", e);
+	    } finally {
+	      setBuildingsLoading(false);
+	      buildingsRequestRef.current = null;
+	    }
+	  })();
+	
+	  buildingsRequestRef.current = promise;
+	  return promise;
 	}
-  }
 
   // Обновить дома + (если выбран) обновить выбранный дом и его жалобы
   async function refreshSelected(buildingId) {
-    await refreshBuildings();
-
-    const id = buildingId ?? selectedBuilding?.id;
-    if (!id) return;
-
-    try {
-      const list = await getReportsByBuilding(id);
-      setReports(list);
-    } catch {
-      setReports([]);
-    }
-  }
-
+	  await refreshBuildings();
+	
+	  const id = buildingId ?? selectedBuilding?.id;
+	  if (!id) return;
+	
+	  try {
+	    const list = await getReportsByBuilding(id);
+	    setReports(list);
+	  } catch {
+	    setReports([]);
+	  }
+	}
  
+  const initialLoadDoneRef = useRef(false);
 
+	useEffect(() => {
+	  if (initialLoadDoneRef.current) return;
+	  initialLoadDoneRef.current = true;
+	  refreshBuildings();
+	}, []);
+
+	
   useEffect(() => {
 	  fetchBuildingsSafe().catch(() => {});
 	}, [fetchBuildingsSafe]);
@@ -369,25 +388,26 @@ export default function MapView() {
   useEffect(() => {
 	  if (!mapRef.current) return;
 	  if (!buildings.length) return;
-
+	  if (didInitialFitRef.current) return;
+	
 	  const highBuildings = buildings.filter(
-		(b) => (b.high_count || 0) > 0
+	    (b) => (b.high_count || 0) > 0
 	  );
-
+	
 	  if (!highBuildings.length) return;
-
+	
 	  const bounds = L.latLngBounds(
-		highBuildings.map((b) => [
-		  Number(b.lat),
-		  Number(b.lng)
-		])
+	    highBuildings.map((b) => [
+	      Number(b.lat),
+	      Number(b.lng),
+	    ])
 	  );
-
+	
 	  mapRef.current.fitBounds(bounds, {
-		padding: [50, 50]
-		
+	    padding: [50, 50],
 	  });
-
+	
+	  didInitialFitRef.current = true;
 	}, [buildings]);
 
   useEffect(() => {
