@@ -1,5 +1,6 @@
 export const API_BASE =
-  (import.meta.env.VITE_API_BASE && import.meta.env.VITE_API_BASE.replace(/\/$/, "")) ||
+  (import.meta.env.VITE_API_BASE &&
+    import.meta.env.VITE_API_BASE.replace(/\/$/, "")) ||
   "https://cityhelp-backend-gtpu.onrender.com";
 
 function sleep(ms) {
@@ -20,37 +21,55 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
 async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
   const method = (options.method || "GET").toUpperCase();
+  const timeoutMs = options.timeoutMs || 12000;
+
   const headers = { ...(options.headers || {}) };
 
+  // Для GET не ставим Content-Type, чтобы не вызывать лишний OPTIONS preflight
   if (!isFormData && options.body != null && method !== "GET") {
     headers["Content-Type"] = "application/json";
   }
 
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      ...options,
+  // timeoutMs не должен улетать в fetch как левый ключ
+  const { timeoutMs: _timeoutMs, ...fetchOptions } = options;
+
+  const res = await fetchWithTimeout(
+    `${API_BASE}${path}`,
+    {
+      ...fetchOptions,
+      method,
       headers,
-    });
+    },
+    timeoutMs
+  );
 
-    const text = await res.text();
-    let data = null;
-    try {
-      data = text ? JSON.parse(text) : null;
-    } catch {
-      data = text;
-    }
+  const text = await res.text();
+  let data = null;
 
-    if (!res.ok) {
-      const err = new Error("Request failed");
-      err.status = res.status;
-      err.data = data;
-      throw err;
-    }
-
-    return data;
-  } finally {
-    clearTimeout(t);
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
   }
+
+  console.log(
+    "[API]",
+    method,
+    `${API_BASE}${path}`,
+    "status=",
+    res.status,
+    "text=",
+    text?.slice(0, 200)
+  );
+
+  if (!res.ok) {
+    const err = new Error("Request failed");
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+
+  return data;
 }
 
 export async function getBuildings() {
@@ -65,45 +84,48 @@ export async function getBuildings() {
     } catch {}
   }
 
-  // 1) прогрев: лёгкий запрос на корень (он быстрее/проще)
-  // (если бэк спит — этот вызов тоже “разбудит” инстанс)
+  // 1) прогрев: лёгкий запрос на корень
   await warmupBackend();
 
-  // 2) основной запрос с долгими ретраями под твои 120 секунд
+  // 2) основной запрос с ретраями
   const data = await requestWithRetry(
     "/buildings/",
-    { method: "GET", timeoutMs: 15000 },          // 15s на попытку
-    [0, 2000, 5000, 10000, 20000, 30000, 45000]   // суммарно перекрывает 120s+
+    { method: "GET", timeoutMs: 15000 },
+    [0, 2000, 5000, 10000, 20000, 30000, 45000]
   );
 
-  try { sessionStorage.setItem("buildings_cache", JSON.stringify(data)); } catch {}
+  try {
+    sessionStorage.setItem("buildings_cache", JSON.stringify(data));
+  } catch {}
+
   return data;
 }
 
 async function warmupBackend() {
-  // чтобы не долбить прогревом постоянно
   const last = Number(sessionStorage.getItem("api_warmup_ts") || 0);
   const now = Date.now();
-  if (now - last < 60_000) return; // 1 минута
+
+  if (now - last < 60_000) return;
 
   sessionStorage.setItem("api_warmup_ts", String(now));
 
   try {
-    // корень у тебя есть: @app.get("/")
     await request("/", { method: "GET", timeoutMs: 8000 });
   } catch {
-    // даже если упало — это всё равно запускает “просыпание”
+    // даже если упало — это может разбудить инстанс
   }
 }
 
 async function refreshBuildingsInBackground() {
   try {
     await warmupBackend();
+
     const data = await requestWithRetry(
       "/buildings/",
       { method: "GET", timeoutMs: 15000 },
       [2000, 5000, 10000]
     );
+
     sessionStorage.setItem("buildings_cache", JSON.stringify(data));
   } catch {}
 }
@@ -112,7 +134,9 @@ async function requestWithRetry(path, options, delaysMs) {
   let lastErr;
 
   for (let i = 0; i < delaysMs.length; i++) {
-    if (delaysMs[i] > 0) await new Promise((r) => setTimeout(r, delaysMs[i]));
+    if (delaysMs[i] > 0) {
+      await sleep(delaysMs[i]);
+    }
 
     try {
       return await request(path, options);
@@ -123,16 +147,20 @@ async function requestWithRetry(path, options, delaysMs) {
       const isNetwork = !status; // aborted / failed to fetch / connection closed
       const isRetryStatus = [502, 503, 504].includes(status);
 
-      // если это НЕ сетевое и НЕ 502/503/504 — смысла ретраить нет
-      if (!(isNetwork || isRetryStatus)) throw e;
+      if (!(isNetwork || isRetryStatus)) {
+        throw e;
+      }
     }
   }
 
   throw lastErr;
 }
+
 export function createBuilding(payload) {
-  // payload: {lat, lng, status?, address?}
-  return request("/buildings/", { method: "POST", body: JSON.stringify(payload) });
+  return request("/buildings/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
 export function updateBuildingPosition(buildingId, lat, lng) {
@@ -164,7 +192,7 @@ export const createReport = (data) => {
     body: formData,
   });
 };
-  
+
 export function confirmPositive(buildingId) {
   return request(`/buildings/${buildingId}/confirm-positive`, {
     method: "POST",
@@ -191,9 +219,9 @@ export function closeHelp(helpId) {
 
 export async function respondToHelp(id, userHash) {
   return request(`/help/${id}/respond`, {
-	  method: "POST",
-	  headers: { "X-User-Hash": userHash }
-	});
+    method: "POST",
+    headers: { "X-User-Hash": userHash },
+  });
 }
 
 export function getHelpResponses(id) {
