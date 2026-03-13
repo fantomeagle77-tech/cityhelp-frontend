@@ -236,6 +236,7 @@ export default function MapView() {
   const [severityFilter, setSeverityFilter] = useState(null);
   const mapRef = useRef(null);
   const [mapReady, setMapReady] = useState(false);
+  const [buildingsLoading, setBuildingsLoading] = useState(true);
   const markersRef = useRef({});
   const hasCenteredRef = useRef(false);
   const clusterRef = useRef(null);
@@ -255,8 +256,6 @@ export default function MapView() {
 
   const [mapCenter, setMapCenter] = useState([53.9, 27.5667]);
   const [mapZoom, setMapZoom] = useState(12);
-  const loadTimerRef = useRef(null);
-  const lastBboxKeyRef = useRef("");
   const fetchBuildingsSafe = useCallback(async () => {
 	  // 3 попытки: 0.6s / 1.2s / 2.0s (Render иногда “просыпается”)
 	  const delays = [600, 1200, 2000];
@@ -277,45 +276,33 @@ export default function MapView() {
 	}, []);
 
   async function refreshBuildings() {
-	  await fetchBuildingsSafe();
+	try {
+	  setBuildingsLoading(true);
+	  const data = await getBuildings();
+	  setBuildings(Array.isArray(data) ? data : []);
+	} catch (e) {
+	  console.log("[BUILDINGS_LOAD_ERROR]", e);
+	} finally {
+	  setBuildingsLoading(false);
 	}
+  }
 
   // Обновить дома + (если выбран) обновить выбранный дом и его жалобы
   async function refreshSelected(buildingId) {
-    const data = await getBuildings();
-    setBuildings(data);
+    await refreshBuildings();
 
     const id = buildingId ?? selectedBuilding?.id;
     if (!id) return;
-
-    const updated = data.find((b) => String(b.id) === String(id));
-    if (updated) setSelectedBuilding(updated);
 
     try {
       const list = await getReportsByBuilding(id);
       setReports(list);
     } catch {
-      // список жалоб не обязателен для рендера
+      setReports([]);
     }
   }
 
- const loadBuildingsForView = useCallback(async () => {
-  if (!mapRef.current) return;
-
-  const b = mapRef.current.getBounds();
-  const south = b.getSouth();
-  const west = b.getWest();
-  const north = b.getNorth();
-  const east = b.getEast();
-
-  // ключ, чтобы не грузить одно и то же
-  const key = `${south.toFixed(4)}:${west.toFixed(4)}:${north.toFixed(4)}:${east.toFixed(4)}:${statusFilter}:${problemMode}:${severityFilter}`;
-  if (lastBboxKeyRef.current === key) return;
-  lastBboxKeyRef.current = key;
-
-  const data = await getBuildings(); // временно без bbox
-  setBuildings(data);
-}, [statusFilter, problemMode, severityFilter]);
+ 
 
   useEffect(() => {
 	  fetchBuildingsSafe().catch(() => {});
@@ -376,29 +363,8 @@ export default function MapView() {
 	}, []);
 	
   useEffect(() => {
-	  if (!mapReady || !mapRef.current) return;
-	
-	  const map = mapRef.current;
-	
-	  const schedule = () => {
-	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
-	    loadTimerRef.current = setTimeout(() => {
-	      loadBuildingsForView().catch(() => {});
-	    }, 300);
-	  };
-	
-	  // первая загрузка
-	  // schedule();
-	
-	  // map.on("moveend", schedule);
-	  // map.on("zoomend", schedule);
-	
-	  return () => {
-	    // map.off("moveend", schedule);
-	    // map.off("zoomend", schedule);
-	    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
-	  };
-	}, [mapReady, loadBuildingsForView]);
+    refreshBuildings();
+  }, []);
 	
   useEffect(() => {
 	  if (!mapRef.current) return;
@@ -610,6 +576,34 @@ export default function MapView() {
 		  CityHelp — карта обращений и мониторинг домов
 		</h1>
       <div className="map-wrapper">
+		{buildingsLoading && (
+		  <div
+		    style={{
+		      position: "absolute",
+		      inset: 0,
+		      zIndex: 1400,
+		      display: "flex",
+		      alignItems: "center",
+		      justifyContent: "center",
+		      background: "rgba(255,255,255,0.55)",
+		      backdropFilter: "blur(2px)",
+		      pointerEvents: "none",
+		    }}
+		  >
+		    <div
+		      style={{
+		        background: "white",
+		        borderRadius: 14,
+		        padding: "12px 18px",
+		        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+		        fontWeight: 700,
+		        fontSize: 15,
+		      }}
+		    >
+		      Загружаем метки...
+		    </div>
+		  </div>
+		)}
 		<div
 		  style={{
 		    position: "absolute",
