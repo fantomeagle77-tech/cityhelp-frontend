@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 export default function SidePanel({
   building,
   reports,
+  reportsLoading = false,
   onClose,
 
   // сообщаем MapView, чтобы он обновил список жалоб и статус
@@ -506,8 +507,24 @@ export default function SidePanel({
 				}}
 			  />
 
-	  <h2 className="section-title">Жалобы</h2>
-	
+	  <h2 className="section-title">Текущие проблемы</h2>
+
+	  {reportsLoading && (
+		  <div
+		    style={{
+		      marginBottom: 12,
+		      padding: "10px 12px",
+		      borderRadius: 10,
+		      background: "#f8fafc",
+		      color: "#334155",
+		      fontSize: 14,
+		      fontWeight: 600,
+		    }}
+		  >
+		    Загружаем проблемы...
+		  </div>
+		)}
+		  
 	  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
 		  <button
 			onClick={() => setTab("active")}
