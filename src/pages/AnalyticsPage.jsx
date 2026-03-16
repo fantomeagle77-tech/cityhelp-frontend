@@ -54,7 +54,7 @@ const COLORS = ["#22c55e", "#facc15", "#f97316", "#ef4444"];
 
 const severityMap = {
   green: "Норма",
-  yellow: "Есть жалобы",
+  yellow: "Есть проблемы",
   orange: "Проблемно",
   red: "Критично",
 };
@@ -165,7 +165,7 @@ const filteredDailyStats = dailyStats.filter(item => {
 			  <Activity size={22} />
 			</div>
 			<div>
-			  <div className="kpi-title">Всего жалоб</div>
+			  <div className="kpi-title">Всего проблем</div>
 			  <div className="kpi-value">{totalCount}</div>
 			</div>
 		  </div>
@@ -227,14 +227,14 @@ const filteredDailyStats = dailyStats.filter(item => {
 
 			<YAxis
 			  label={{
-				value: "Количество жалоб",
+				value: "Количество проблем",
 				angle: -90,
 				position: "insideLeft",
 			  }}
 			/>
 
 			<Tooltip
-			  formatter={(value) => [`${value} жалоб`, "Количество"]}
+			  formatter={(value) => [`${value} проблем`, "Количество"]}
 			  labelFormatter={(label) => `Дом: ${label}`}
 			/>
 
@@ -311,7 +311,7 @@ const filteredDailyStats = dailyStats.filter(item => {
 				{total}
 			  </text>
 			  <Tooltip
-			    formatter={(value) => [`${value} жалоб`, "Количество"]}
+			    formatter={(value) => [`${value} проблем`, "Количество"]}
 			    contentStyle={{
 				  background: "rgba(30,41,59,0.9)",
 				  border: "none",
@@ -360,7 +360,7 @@ const filteredDailyStats = dailyStats.filter(item => {
 		  </button>
 		</div>
 	  <div className="analytics-card">
-        <div className="analytics-title">Жалобы по дням</div>
+        <div className="analytics-title">Проблемы по дням</div>
         <ResponsiveContainer width="100%" height={300}>
 			
           <LineChart
@@ -376,7 +376,7 @@ const filteredDailyStats = dailyStats.filter(item => {
 
             <YAxis
               label={{
-                value: "Количество жалоб",
+                value: "Количество проблем",
                 angle: -90,
                 position: "insideLeft",
               }}
