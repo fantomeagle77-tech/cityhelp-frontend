@@ -166,7 +166,7 @@ export default function SidePanel({
 
 	  // если это лимит 24 часа — покажем alert
 	  if (backendMessage.includes("24")) {
-		alert("Вы уже оставляли жалобу за последние 24 часа для этого дома. Через 24 часа, можете оставить новую жалобу!");
+		alert("Вы уже оставляли сообщение о проблеме за последние 24 часа для этого дома. Через 24 часа, можете оставить сообщение о новой проблеме!");
 	  }
     } finally {
       setSubmitting(false);
@@ -233,7 +233,7 @@ export default function SidePanel({
 
 		  {/* Слева — количество жалоб */}
 		  <div style={{ fontSize: 15, color: "#555" }}>
-			Всего жалоб: <b>{reports?.length || 0}</b>
+			Всего проблем: <b>{reports?.length || 0}</b>
 		  </div>
 
 		  <div className="house-stats">
@@ -274,7 +274,7 @@ export default function SidePanel({
 			  <span className="status-text">
 				{building?.status === "red" && "Критично"}
 				{building?.status === "orange" && "Проблемно"}
-				{building?.status === "yellow" && "Есть жалобы"}
+				{building?.status === "yellow" && "Есть проблемы"}
 				{building?.status === "green" && "Норма"}
 			  </span>
 			</div>
@@ -306,7 +306,7 @@ export default function SidePanel({
 				  color: "#e65100"
 				}}
 			  >
-				Перенос отключён — у дома уже есть жалобы
+				Перенос отключён — у дома уже есть сообшения о проблемах
 			  </div>
 			)}
 		  </>
@@ -373,7 +373,7 @@ export default function SidePanel({
 
       <hr />
 
-      <h2 style={{ marginTop: 0 }}>Добавить жалобу</h2>
+      <h2 style={{ marginTop: 0 }}>Добавить сообщение о проблеме</h2>
 
       <div style={{ marginBottom: 10 }}>
         <div style={{ fontWeight: 700, marginBottom: 6 }}>Категория</div>
@@ -413,7 +413,7 @@ export default function SidePanel({
       </div>
 
       <div style={{ marginBottom: 10 }}>
-        <div style={{ fontWeight: 700, marginBottom: 6 }}>Текст жалобы</div>
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>Текст проблемы</div>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -474,7 +474,7 @@ export default function SidePanel({
         disabled={submitting || !text.trim()}
         style={{ width: "100%", padding: "10px 12px" }}
       >
-        Добавить жалобу
+        Добавить проблеиму
       </button>
 
       </div>
