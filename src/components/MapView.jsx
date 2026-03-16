@@ -186,6 +186,7 @@ export default function MapView() {
   const [buildings, setBuildings] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [problemMode, setProblemMode] = useState(false);
   const [severityFilter, setSeverityFilter] = useState(null);
@@ -198,6 +199,8 @@ export default function MapView() {
   const hasCenteredRef = useRef(false);
   const didInitialFitRef = useRef(false);
   const buildingsRequestRef = useRef(null);
+  const reportsCacheRef = useRef({});
+  const reportsRequestRef = useRef({});
 
   // режим добавления метки
   const [addMode, setAddMode] = useState(false);
@@ -256,22 +259,49 @@ export default function MapView() {
     return promise;
   }
 
+  async function loadReportsForBuilding(buildingId, force = false) {
+    if (!force && reportsCacheRef.current[buildingId]) {
+      setReports(reportsCacheRef.current[buildingId]);
+      return reportsCacheRef.current[buildingId];
+    }
+  
+    if (!force && reportsRequestRef.current[buildingId]) {
+      return reportsRequestRef.current[buildingId];
+    }
+  
+    const promise = (async () => {
+      try {
+        setReportsLoading(true);
+        const list = await getReportsByBuilding(buildingId);
+        const safeList = Array.isArray(list) ? list : [];
+        reportsCacheRef.current[buildingId] = safeList;
+        setReports(safeList);
+        return safeList;
+      } catch (e) {
+        console.log("[REPORTS_LOAD_ERROR]", buildingId, e);
+        setReports([]);
+        return [];
+      } finally {
+        setReportsLoading(false);
+        delete reportsRequestRef.current[buildingId];
+      }
+    })();
+  
+    reportsRequestRef.current[buildingId] = promise;
+    return promise;
+  }
+  
   async function refreshSelected(buildingId) {
     await refreshBuildings(true);
-
+  
     const id = buildingId ?? selectedBuilding?.id;
     if (!id) return;
-
+  
+    await loadReportsForBuilding(id, true);
+  
     const updated = buildings.find((b) => String(b.id) === String(id));
     if (updated) {
       setSelectedBuilding(updated);
-    }
-
-    try {
-      const list = await getReportsByBuilding(id);
-      setReports(list);
-    } catch {
-      setReports([]);
     }
   }
 
@@ -362,15 +392,16 @@ export default function MapView() {
     trackEvent("open_building", {
       building_id: building.id,
     });
-
+  
     setSelectedBuilding(building);
-
-    try {
-      const list = await getReportsByBuilding(building.id);
-      setReports(list);
-    } catch {
+  
+    if (reportsCacheRef.current[building.id]) {
+      setReports(reportsCacheRef.current[building.id]);
+    } else {
       setReports([]);
     }
+  
+    await loadReportsForBuilding(building.id);
   }
 
   function closeSidePanel() {
@@ -920,6 +951,7 @@ export default function MapView() {
           <SidePanel
             building={selectedBuilding}
             reports={reports}
+            reportsLoading={reportsLoading}
             onClose={closeSidePanel}
             onReportAdded={async () => {
               await refreshSelected(selectedBuilding.id);
