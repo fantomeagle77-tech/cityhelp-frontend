@@ -752,7 +752,7 @@ export default function SidePanel({
 			  ))}
 		  </div>
 		) : (
-		  <div style={{ color: "#666" }}>Жалоб пока нет.</div>
+		  <div style={{ color: "#666" }}>Проблем пока нет.</div>
 		)}
 	  </div>
 
