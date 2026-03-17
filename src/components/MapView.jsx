@@ -201,6 +201,8 @@ export default function MapView() {
   const buildingsRequestRef = useRef(null);
   const reportsCacheRef = useRef({});
   const reportsRequestRef = useRef({});
+  const reportsLoadTokenRef = useRef(0);
+  const selectedBuildingRef = useRef(null);
 
   // режим добавления метки
   const [addMode, setAddMode] = useState(false);
@@ -311,14 +313,27 @@ export default function MapView() {
   async function refreshSelected(buildingId) {
     await refreshBuildings(true);
   
-    const id = buildingId ?? selectedBuilding?.id;
+    const id = buildingId ?? selectedBuildingRef.current?.id;
     if (!id) return;
   
-    await loadReportsForBuilding(id, true);
+    setReportsLoading(true);
+    const loadToken = ++reportsLoadTokenRef.current;
   
-    const updated = buildings.find((b) => String(b.id) === String(id));
-    if (updated) {
-      setSelectedBuilding(updated);
+    try {
+      const list = await getReportsByBuilding(id);
+  
+      if (reportsLoadTokenRef.current !== loadToken) return;
+      if (selectedBuildingRef.current?.id !== id) return;
+  
+      setReports(Array.isArray(list) ? list : []);
+    } catch (e) {
+      console.log("[REPORTS_LOAD_ERROR]", id, e);
+  
+      if (reportsLoadTokenRef.current !== loadToken) return;
+    } finally {
+      if (reportsLoadTokenRef.current === loadToken) {
+        setReportsLoading(false);
+      }
     }
   }
 
@@ -326,6 +341,10 @@ export default function MapView() {
     refreshBuildings(true);
   }, []);
 
+  useEffect(() => {
+    selectedBuildingRef.current = selectedBuilding;
+  }, [selectedBuilding]);
+  
   useEffect(() => {
     if (!navigator.geolocation) return;
 
@@ -411,14 +430,27 @@ export default function MapView() {
     });
   
     setSelectedBuilding(building);
+    setReportsLoading(true);
   
-    if (reportsCacheRef.current[building.id]) {
-      setReports(reportsCacheRef.current[building.id]);
-    } else {
-      setReports([]);
+    const loadToken = ++reportsLoadTokenRef.current;
+    const targetBuildingId = building.id;
+  
+    try {
+      const list = await getReportsByBuilding(targetBuildingId);
+  
+      if (reportsLoadTokenRef.current !== loadToken) return;
+      if (selectedBuildingRef.current?.id !== targetBuildingId) return;
+  
+      setReports(Array.isArray(list) ? list : []);
+    } catch (e) {
+      console.log("[REPORTS_LOAD_ERROR]", targetBuildingId, e);
+  
+      if (reportsLoadTokenRef.current !== loadToken) return;
+    } finally {
+      if (reportsLoadTokenRef.current === loadToken) {
+        setReportsLoading(false);
+      }
     }
-  
-    await loadReportsForBuilding(building.id);
   }
 
   function closeSidePanel() {
