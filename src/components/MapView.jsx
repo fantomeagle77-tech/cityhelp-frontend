@@ -279,6 +279,23 @@ export default function MapView() {
         return safeList;
       } catch (e) {
         console.log("[REPORTS_LOAD_ERROR]", buildingId, e);
+      
+        if (e?.name === "AbortError") {
+          setReports([
+            {
+              id: "__load_error__",
+              text: "Не удалось вовремя загрузить проблемы по дому. Попробуйте открыть дом ещё раз.",
+              category: "system",
+              severity: "medium",
+              periodicity: "unknown",
+              created_at: new Date().toISOString(),
+              status: "open",
+              is_system_error: true,
+            },
+          ]);
+          return [];
+        }
+      
         setReports([]);
         return [];
       } finally {
