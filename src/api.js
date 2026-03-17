@@ -73,14 +73,14 @@ async function request(path, options = {}) {
 }
 
 export async function getBuildings() {
-  const cached = sessionStorage.getItem("buildings_cache");
+  const cached = localStorage.getItem("buildings_cache");
 
-  // 1. Если есть кэш — отдаем его сразу, без ожидания backend
+  // если есть кэш — показываем сразу
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
 
-      // Обновление в фоне, но UI уже не блокируем
+      // обновляем в фоне, но UI не блокируем
       refreshBuildingsInBackground();
 
       return parsed;
@@ -89,15 +89,15 @@ export async function getBuildings() {
     }
   }
 
-  // 2. Если кэша нет — тогда уже реально грузим с backend
+  // если кэша нет — грузим, но не 30 секунд, а более адекватно
   const data = await requestWithRetry(
     "/buildings/",
-    { method: "GET", timeoutMs: 30000 },
-    [0, 3000, 7000, 12000, 20000]
+    { method: "GET", timeoutMs: 12000 },
+    [0, 2000, 5000]
   );
 
   try {
-    sessionStorage.setItem("buildings_cache", JSON.stringify(data));
+    localStorage.setItem("buildings_cache", JSON.stringify(data));
   } catch {}
 
   return data;
@@ -122,12 +122,12 @@ async function refreshBuildingsInBackground() {
   try {
     const data = await requestWithRetry(
       "/buildings/",
-      { method: "GET", timeoutMs: 30000 },
-      [0, 3000, 7000]
+      { method: "GET", timeoutMs: 12000 },
+      [0, 2000, 5000]
     );
 
     try {
-      sessionStorage.setItem("buildings_cache", JSON.stringify(data));
+      localStorage.setItem("buildings_cache", JSON.stringify(data));
     } catch {}
   } catch {}
 }
