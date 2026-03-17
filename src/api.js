@@ -73,25 +73,27 @@ async function request(path, options = {}) {
 }
 
 export async function getBuildings() {
-  // 0) мгновенно показываем кэш, чтобы не было пусто
   const cached = sessionStorage.getItem("buildings_cache");
+
+  // 1. Если есть кэш — отдаем его сразу, без ожидания backend
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
-      // в фоне всё равно обновим
+
+      // Обновление в фоне, но UI уже не блокируем
       refreshBuildingsInBackground();
+
       return parsed;
-    } catch {}
+    } catch {
+      // если кэш битый — идем в обычную загрузку
+    }
   }
 
-  // 1) прогрев: лёгкий запрос на корень
-  await warmupBackend();
-
-  // 2) основной запрос с ретраями
+  // 2. Если кэша нет — тогда уже реально грузим с backend
   const data = await requestWithRetry(
     "/buildings/",
-    { method: "GET", timeoutMs: 15000 },
-    [0, 2000, 5000, 10000, 20000, 30000, 45000]
+    { method: "GET", timeoutMs: 30000 },
+    [0, 3000, 7000, 12000, 20000]
   );
 
   try {
@@ -118,15 +120,15 @@ async function warmupBackend() {
 
 async function refreshBuildingsInBackground() {
   try {
-    await warmupBackend();
-
     const data = await requestWithRetry(
       "/buildings/",
-      { method: "GET", timeoutMs: 15000 },
-      [2000, 5000, 10000]
+      { method: "GET", timeoutMs: 30000 },
+      [0, 3000, 7000]
     );
 
-    sessionStorage.setItem("buildings_cache", JSON.stringify(data));
+    try {
+      sessionStorage.setItem("buildings_cache", JSON.stringify(data));
+    } catch {}
   } catch {}
 }
 
