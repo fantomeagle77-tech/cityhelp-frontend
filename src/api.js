@@ -171,7 +171,10 @@ export function updateBuildingPosition(buildingId, lat, lng) {
 }
 
 export function getReportsByBuilding(buildingId) {
-  return request(`/reports/buildings/${buildingId}/reports`);
+  return request(`/reports/buildings/${buildingId}/reports`, {
+    method: "GET",
+    timeoutMs: 30000,
+  });
 }
 
 export const createReport = (data) => {
