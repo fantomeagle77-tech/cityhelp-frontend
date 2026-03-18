@@ -316,11 +316,15 @@ export default function MapView() {
     const id = buildingId ?? selectedBuildingRef.current?.id;
     if (!id) return;
   
-    setReportsLoading(true);
+    const updated = buildings.find((b) => String(b.id) === String(id));
+    if (updated) {
+      setSelectedBuilding(updated);
+    }
+  
     const loadToken = ++reportsLoadTokenRef.current;
   
     try {
-      const list = await getReportsByBuilding(id);
+      const list = await loadReportsForBuilding(id, true);
   
       if (reportsLoadTokenRef.current !== loadToken) return;
       if (selectedBuildingRef.current?.id !== id) return;
@@ -336,7 +340,6 @@ export default function MapView() {
       }
     }
   }
-
   useEffect(() => {
     refreshBuildings(true);
   }, []);
@@ -430,13 +433,19 @@ export default function MapView() {
     });
   
     setSelectedBuilding(building);
-    setReportsLoading(true);
+  
+    // если уже есть кэш — показываем сразу
+    if (reportsCacheRef.current[building.id]) {
+      setReports(reportsCacheRef.current[building.id]);
+    } else {
+      setReports([]);
+    }
   
     const loadToken = ++reportsLoadTokenRef.current;
     const targetBuildingId = building.id;
   
     try {
-      const list = await getReportsByBuilding(targetBuildingId);
+      const list = await loadReportsForBuilding(targetBuildingId);
   
       if (reportsLoadTokenRef.current !== loadToken) return;
       if (selectedBuildingRef.current?.id !== targetBuildingId) return;
